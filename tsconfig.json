@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist2/",
+        "noImplicitAny": true,
+        "module": "es6",
+        "target": "es5",
+        "jsx": "react",
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./src/scripts/**/*.ts"
+    ],
+    
+}

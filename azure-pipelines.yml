@@ -1,0 +1,62 @@
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=vsts&tabs=schema
+trigger:
+  branches:
+    include:
+    - master
+
+stages:
+- stage: Build
+  pool:
+    vmImage: 'ubuntu-16.04'
+  jobs:
+  - job: Build
+    steps:
+    - task: NodeTool@0
+      displayName: 'Use Node >=12.16.3'
+      inputs:
+        versionSpec: '>=10.3.0'
+
+    - task: Npm@1
+      displayName: 'npm ci (install)'
+      inputs:
+        command: custom
+        verbose: false
+        customCommand: ci
+
+    - task: Npm@1
+      displayName: 'build'
+      inputs:
+        command: custom
+        verbose: false
+        customCommand: 'run build:dist'
+
+    # Validate and create dist artifact
+    - script: cp -r . $(Build.ArtifactStagingDirectory)/dist
+      displayName: 'create dist artifact'
+      workingDirectory: dist
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- stage: Deploy
+  pool:
+    vmImage: 'ubuntu-16.04'
+  jobs:
+    - deployment: deploy
+      displayName: Deploy
+      pool:
+        vmImage: 'Ubuntu-16.04'
+      environment: 'production'
+      strategy:
+        # default deployment strategy, more coming...
+        runOnce:
+          deploy:
+            steps:
+            # Copy files over SSH
+            - task: CopyFilesOverSSH@0
+              displayName: Deploy via SSH
+              inputs:
+                sshEndpoint: 'nearlyfreespeech' 
+                sourceFolder: '$(System.DefaultWorkingDirectory)/../drop/dist'

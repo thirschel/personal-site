@@ -1,0 +1,9 @@
+@mixin icon-position($background-position, $height: 30px, $width: 30px) {
+  background-position: $background-position;
+  width: $height;
+  height: $width;
+}
+
+@mixin transition($value: 0.3s all) {
+  transition: $value;
+}
