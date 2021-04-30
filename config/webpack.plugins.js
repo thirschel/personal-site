@@ -14,6 +14,7 @@ const RobotstxtPlugin = require('robotstxt-webpack-plugin');
 const SitemapPlugin = require('sitemap-webpack-plugin').default;
 const CompressionPlugin = require("compression-webpack-plugin");
 const config = require('./site.config');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 // Hot module replacement
 const hmr = new webpack.HotModuleReplacementPlugin();
@@ -104,6 +105,13 @@ class GoogleAnalyticsPlugin {
   }
 }
 
+// Copy audio files
+const audioCopier = new CopyWebpackPlugin({
+  patterns: [
+      { from:  `${config.paths.src}/audio`, to: `audio`}
+  ]
+})
+
 const google = new GoogleAnalyticsPlugin({
   id: config.googleAnalyticsUA,
 });
@@ -112,6 +120,7 @@ module.exports = [
   clean,
   stylelint,
   cssExtract,
+  audioCopier,
   ...generateHTMLPlugins(),
   config.env === "production" && optimizeCss,
   config.env === "production" && robots,
